@@ -55,3 +55,8 @@ $string['verifyurl_desc'] = 'The URL where users will be redirected if they clic
 
 $string['message'] = 'Popup message';
 $string['message_desc'] = 'This message will be displayed to users whose status = 0 in the external database. You can include custom instructions here.';
+
+$string['testconnection'] = 'Test external DB connection';
+$string['testconnection_button'] = 'Click here to test connection';
+$string['testconnection_success'] = 'Connection successful! External database is reachable.';
+$string['testconnection_fail'] = 'Connection failed: {$a}';

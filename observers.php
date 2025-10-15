@@ -29,22 +29,18 @@ class local_verifypsa_observer {
      * Event handler: Check external database for user verification status.
      */
     public static function check_status(\core\event\user_loggedin $event) {
-        global $USER, $PAGE;
+        global $USER, $SESSION;
 
-        // Load plugin config.
         $config = get_config('local_verifypsa');
-
-        // Skip if not enabled.
         if (empty($config->enabled)) {
             return true;
         }
 
-        // Skip for admins (optional).
+        // Skip for admins.
         if (is_siteadmin($USER)) {
             return true;
         }
 
-        // External DB connection setup.
         try {
             $external = moodle_database::get_driver_instance('mysqli', 'native', true);
             $external->connect(
@@ -55,33 +51,27 @@ class local_verifypsa_observer {
                 ''
             );
 
-            // Build query to check status.
             $sql = "SELECT {$config->statuscol}
                       FROM {$config->dbtable}
                      WHERE {$config->usercol} = ?";
             $status = $external->get_field_sql($sql, [$USER->username]);
 
-            if ($status !== false && (string)$status === '0') {
-                // Use admin-configured message.
-                $message = !empty($config->message)
-                    ? $config->message
-                    : get_string('defaultmessage', 'local_verifypsa');
-
-                // Require popup JS.
-                $PAGE->requires->js_call_amd('local_verifypsa/popup', 'init', [
-                    $config->verifyurl,
-                    $message
-                ]);
+            if ($status === false) {
+                // User not found.
+                $SESSION->local_verifypsa_showpopup = 'notfound';
+            } else if ((string)$status === '0') {
+                // Needs verification.
+                $SESSION->local_verifypsa_showpopup = 'verify';
             }
 
             $external->dispose();
 
         } catch (Exception $e) {
-            debugging('local_verifypsa: Failed to query external database. Error: ' . $e->getMessage(), DEBUG_DEVELOPER);
-            return true;
+            debugging('local_verifypsa: DB connection failed. Error: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         return true;
     }
 }
+
 
