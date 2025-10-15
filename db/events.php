@@ -24,15 +24,15 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 $observers = [
     [
         'eventname'   => '\core\event\user_loggedin',
-        'callback'    => 'local_verifypsa\observer::user_loggedin',
-        'internal'    => false,
-        'priority'    => 1000,
+        'callback'    => '\local_verifypsa\observer::user_loggedin',
+        'includefile' => null,  // not needed if using classes/ + namespace
+        'priority'    => 9999,
     ],
 ];
+
 

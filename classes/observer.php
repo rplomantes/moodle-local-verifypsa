@@ -22,44 +22,34 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
 namespace local_verifypsa;
 
 defined('MOODLE_INTERNAL') || die();
 
 class observer {
-    /**
-     * On user login: check external DB and set a session flag for popup rendering.
-     */
     public static function user_loggedin(\core\event\user_loggedin $event): bool {
         global $USER, $SESSION;
+
+        debugging('local_verifypsa observer triggered for user: ' . $USER->username, DEBUG_DEVELOPER);
 
         $config = get_config('local_verifypsa');
         if (empty($config->enabled)) {
             return true;
         }
 
-        // Skip site admins.
         if (is_siteadmin($USER)) {
             return true;
         }
 
-        // Sanity checks.
-        foreach (['dbhost','dbname','dbuser','dbtable','usercol','statuscol'] as $key) {
-            if (empty($config->{$key})) {
-                debugging("local_verifypsa: missing config '$key'", DEBUG_DEVELOPER);
-                return true;
-            }
-        }
-
         try {
-            // Use Moodle's DB driver for external connection (mysqli native).
             $external = \moodle_database::get_driver_instance('mysqli', 'native', true);
             $external->connect(
                 $config->dbhost,
                 $config->dbuser,
                 $config->dbpass,
                 $config->dbname,
-                '' // prefix not used for external DB
+                ''
             );
 
             $sql = "SELECT {$config->statuscol}
@@ -68,15 +58,12 @@ class observer {
             $status = $external->get_field_sql($sql, [$USER->username]);
 
             if ($status === false) {
-                // Username not found in external DB.
                 $SESSION->local_verifypsa_showpopup = 'notfound';
             } else if ((string)$status === '0') {
-                // Found but not verified.
                 $SESSION->local_verifypsa_showpopup = 'verify';
             }
 
             $external->dispose();
-
         } catch (\Throwable $e) {
             debugging('local_verifypsa: external DB error - ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
@@ -84,5 +71,3 @@ class observer {
         return true;
     }
 }
-
-

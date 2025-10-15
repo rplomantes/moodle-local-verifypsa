@@ -25,10 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Inject popup markup on the next page after login (dashboard or frontpage).
- */
-function local_verifypsa_before_standard_html_head(): string {
+function local_verifypsa_before_standard_top_of_body_html(): string {
     global $SESSION;
 
     if (empty($SESSION->local_verifypsa_showpopup)) {
@@ -38,42 +35,50 @@ function local_verifypsa_before_standard_html_head(): string {
     $flag = $SESSION->local_verifypsa_showpopup;
     unset($SESSION->local_verifypsa_showpopup);
 
-    $verifyurl    = get_config('local_verifypsa', 'verifyurl') ?: '#';
-    $verifymessage= get_config('local_verifypsa', 'message') ?: get_string('defaultmessage', 'local_verifypsa');
+    $verifyurl     = get_config('local_verifypsa', 'verifyurl') ?: '#';
+    $verifymessage = get_config('local_verifypsa', 'message') ?: get_string('defaultmessage', 'local_verifypsa');
 
-    // Message per case.
     if ($flag === 'notfound') {
         $custommsg = get_string('notfoundmessage', 'local_verifypsa');
-        // Optionally hide Verify button if not found:
         $hideverify = 'style="display:none"';
     } else {
         $custommsg = $verifymessage;
         $hideverify = '';
     }
 
-    // Return a single <script> that appends the popup.
+    // Plain JS (no RequireJS)
     return <<<HTML
 <script>
-require(['jquery'], function($) {
-    $(function() {
-        var popup = `
-            <div id="verify-popup" style="position:fixed; top:0; left:0; width:100%; height:100%;
-                 background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:9999;">
-                <div style="background:#fff; padding:20px; border-radius:10px; text-align:center; max-width:460px; box-shadow:0 8px 20px rgba(0,0,0,0.25);">
-                    <h3 style="margin:0 0 10px 0;">\${M.util.get_string('popupheading', 'local_verifypsa')}</h3>
-                    <p style="margin:0 0 15px 0;">{$custommsg}</p>
-                    <div style="margin-top:10px;">
-                        <a href="{$verifyurl}" class="btn btn-primary" {$hideverify} style="margin:5px;">\${M.util.get_string('verifynow', 'local_verifypsa')}</a>
-                        <button id="verifypsa-continue" class="btn btn-secondary" style="margin:5px;">\${M.util.get_string('continue', 'local_verifypsa')}</button>
-                    </div>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ local_verifypsa popup loaded with flag = {$flag}');
+
+    var popup = `
+        <div id="verify-popup" style="position:fixed; top:0; left:0; width:100%; height:100%;
+             background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:9999;">
+            <div style="background:#fff; padding:20px; border-radius:10px; text-align:center; max-width:460px; box-shadow:0 8px 20px rgba(0,0,0,0.25);">
+                <h3 style="margin:0 0 10px 0;">Verification Required</h3>
+                <p style="margin:0 0 15px 0;">{$custommsg}</p>
+                <div style="margin-top:10px;">
+                    <a href="{$verifyurl}" class="btn btn-primary" {$hideverify} style="margin:5px;">Verify Now</a>
+                    <button id="verifypsa-continue" class="btn btn-secondary" style="margin:5px;">Continue</button>
                 </div>
-            </div>`;
-        $('body').append(popup);
-        $('#verifypsa-continue').on('click', function(){ $('#verify-popup').remove(); });
+            </div>
+        </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', popup);
+
+    document.getElementById('verifypsa-continue').addEventListener('click', function() {
+        var popupEl = document.getElementById('verify-popup');
+        if (popupEl) {
+            popupEl.remove();
+        }
     });
 });
 </script>
 HTML;
 }
+
+
+
 
 
