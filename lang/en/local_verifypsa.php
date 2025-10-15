@@ -61,7 +61,7 @@ $string['testconnection'] = 'Test external DB connection';
 $string['testconnection_button'] = 'Click here to test';
 $string['testconnection_success'] = 'Connection successful! External DB is reachable.';
 $string['testconnection_probeok'] = 'Table/column probe OK.';
-string['testconnection_probewarn'] = 'Connection OK. Configure table and column settings to enable deeper checks.';
+$string['testconnection_probewarn'] = 'Connection OK. Configure table and column settings to enable deeper checks.';
 $string['testconnection_fail'] = 'Connection failed: {$a}';
 
 $string['popupheading'] = 'Account Verification';
