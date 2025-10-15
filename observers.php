@@ -22,13 +22,15 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_verifypsa;
+
 defined('MOODLE_INTERNAL') || die();
 
-class local_verifypsa_observer {
+class observer {
     /**
-     * Event handler: Check external database for user verification status.
+     * On user login: check external DB and set a session flag for popup rendering.
      */
-    public static function check_status(\core\event\user_loggedin $event) {
+    public static function user_loggedin(\core\event\user_loggedin $event): bool {
         global $USER, $SESSION;
 
         $config = get_config('local_verifypsa');
@@ -36,19 +38,28 @@ class local_verifypsa_observer {
             return true;
         }
 
-        // Skip for admins.
+        // Skip site admins.
         if (is_siteadmin($USER)) {
             return true;
         }
 
+        // Sanity checks.
+        foreach (['dbhost','dbname','dbuser','dbtable','usercol','statuscol'] as $key) {
+            if (empty($config->{$key})) {
+                debugging("local_verifypsa: missing config '$key'", DEBUG_DEVELOPER);
+                return true;
+            }
+        }
+
         try {
-            $external = moodle_database::get_driver_instance('mysqli', 'native', true);
+            // Use Moodle's DB driver for external connection (mysqli native).
+            $external = \moodle_database::get_driver_instance('mysqli', 'native', true);
             $external->connect(
                 $config->dbhost,
                 $config->dbuser,
                 $config->dbpass,
                 $config->dbname,
-                ''
+                '' // prefix not used for external DB
             );
 
             $sql = "SELECT {$config->statuscol}
@@ -57,17 +68,17 @@ class local_verifypsa_observer {
             $status = $external->get_field_sql($sql, [$USER->username]);
 
             if ($status === false) {
-                // User not found.
+                // Username not found in external DB.
                 $SESSION->local_verifypsa_showpopup = 'notfound';
             } else if ((string)$status === '0') {
-                // Needs verification.
+                // Found but not verified.
                 $SESSION->local_verifypsa_showpopup = 'verify';
             }
 
             $external->dispose();
 
-        } catch (Exception $e) {
-            debugging('local_verifypsa: DB connection failed. Error: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        } catch (\Throwable $e) {
+            debugging('local_verifypsa: external DB error - ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         return true;

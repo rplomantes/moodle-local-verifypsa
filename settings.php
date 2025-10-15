@@ -27,13 +27,13 @@
 // Local plugin: Verify PSA
 // Settings page for admin configuration.
 
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-
     $settings = new admin_settingpage('local_verifypsa', get_string('pluginname', 'local_verifypsa'));
 
-    // Enable/disable the plugin.
+    // Enable/disable.
     $settings->add(new admin_setting_configcheckbox(
         'local_verifypsa/enabled',
         get_string('enabled', 'local_verifypsa'),
@@ -112,16 +112,16 @@ if ($hassiteconfig) {
         PARAM_URL
     ));
 
-    // Customizable popup message.
+    // Customizable popup message (for 'verify' case).
     $settings->add(new admin_setting_configtextarea(
         'local_verifypsa/message',
         get_string('message', 'local_verifypsa'),
         get_string('message_desc', 'local_verifypsa'),
-        'Please verify your info with PSA before continuing.',
+        get_string('defaultmessage', 'local_verifypsa'),
         PARAM_TEXT
     ));
 
-     // Test connection link.
+    // Test connection link.
     $testurl = new moodle_url('/local/verifypsa/testconnection.php');
     $settings->add(new admin_setting_heading(
         'local_verifypsa/testconnection',
@@ -130,7 +130,5 @@ if ($hassiteconfig) {
             ['class' => 'btn btn-secondary', 'target' => '_blank'])
     ));
 
-    // Add this settings page to the admin tree.
     $ADMIN->add('localplugins', $settings);
 }
-

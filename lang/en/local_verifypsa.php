@@ -23,40 +23,47 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 $string['pluginname'] = 'Verify PSA';
-$string['enabled'] = 'Enable verification check';
-$string['enabled_desc'] = 'If enabled, the system will check an external database on login to verify user status.';
+$string['enabled'] = 'Enable Verify PSA';
+$string['enabled_desc'] = 'If enabled, users will be checked against an external database after login.';
 
-$string['dbhost'] = 'Database host';
-$string['dbhost_desc'] = 'Hostname or IP address of the external database server.';
+$string['dbhost'] = 'External DB host';
+$string['dbhost_desc'] = 'Hostname or IP of the external database server (MySQL).';
 
-$string['dbname'] = 'Database name';
-$string['dbname_desc'] = 'The name of the external database to connect to.';
+$string['dbname'] = 'External DB name';
+$string['dbname_desc'] = 'Database name containing the user table.';
 
-$string['dbuser'] = 'Database user';
-$string['dbuser_desc'] = 'Username for connecting to the external database.';
+$string['dbuser'] = 'External DB user';
+$string['dbuser_desc'] = 'User with read access to the external database.';
 
-$string['dbpass'] = 'Database password';
-$string['dbpass_desc'] = 'Password for the database user.';
+$string['dbpass'] = 'External DB password';
+$string['dbpass_desc'] = 'Password for the external DB user.';
 
-$string['dbtable'] = 'Table name';
-$string['dbtable_desc'] = 'Name of the table in the external database where user data is stored.';
+$string['dbtable'] = 'External table name';
+$string['dbtable_desc'] = 'Table to query for the user status.';
 
 $string['usercol'] = 'Username column';
-$string['usercol_desc'] = 'Column name in the external table that corresponds to Moodle username.';
+$string['usercol_desc'] = 'Column name that stores the username.';
 
 $string['statuscol'] = 'Status column';
-$string['statuscol_desc'] = 'Column name in the external table that contains the verification status (0 = unverified).';
+$string['statuscol_desc'] = 'Column name that stores the verification status. Use 0 for not verified.';
 
 $string['verifyurl'] = 'Verification URL';
-$string['verifyurl_desc'] = 'The URL where users will be redirected if they click "Verify Now".';
+$string['verifyurl_desc'] = 'URL where users can complete verification (used for the "Verify Now" button).';
 
-$string['message'] = 'Popup message';
-$string['message_desc'] = 'This message will be displayed to users whose status = 0 in the external database. You can include custom instructions here.';
+$string['message'] = 'Popup message (status = 0)';
+$string['message_desc'] = 'Message shown when the user is found but has status = 0.';
+$string['defaultmessage'] = 'Please verify your information before continuing.';
+
+$string['notfoundmessage'] = '⚠️ Record not found for validation. Please contact your administrator.';
 
 $string['testconnection'] = 'Test external DB connection';
-$string['testconnection_button'] = 'Click here to test connection';
-$string['testconnection_success'] = 'Connection successful! External database is reachable.';
+$string['testconnection_button'] = 'Click here to test';
+$string['testconnection_success'] = 'Connection successful! External DB is reachable.';
+$string['testconnection_probeok'] = 'Table/column probe OK.';
+string['testconnection_probewarn'] = 'Connection OK. Configure table and column settings to enable deeper checks.';
 $string['testconnection_fail'] = 'Connection failed: {$a}';
+
+$string['popupheading'] = 'Account Verification';
+$string['verifynow'] = 'Verify Now';
+$string['continue'] = 'Continue';
