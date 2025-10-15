@@ -22,38 +22,106 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// This file is part of Moodle - http://moodle.org/
+//
+// Local plugin: Verify PSA
+// Settings page for admin configuration.
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
+
     $settings = new admin_settingpage('local_verifypsa', get_string('pluginname', 'local_verifypsa'));
 
-    // Enable/disable
+    // Enable/disable the plugin.
     $settings->add(new admin_setting_configcheckbox(
-        'local_verifypsa/enable',
-        get_string('enable', 'local_verifypsa'),
-        get_string('enable_desc', 'local_verifypsa'),
-        1
+        'local_verifypsa/enabled',
+        get_string('enabled', 'local_verifypsa'),
+        get_string('enabled_desc', 'local_verifypsa'),
+        0
     ));
 
-    // External DB
-    $settings->add(new admin_setting_configtext('local_verifypsa/dbhost', get_string('dbhost', 'local_verifypsa'), '', 'localhost'));
-    $settings->add(new admin_setting_configtext('local_verifypsa/dbname', get_string('dbname', 'local_verifypsa'), '', ''));
-    $settings->add(new admin_setting_configtext('local_verifypsa/dbuser', get_string('dbuser', 'local_verifypsa'), '', ''));
-    $settings->add(new admin_setting_configpasswordunmask('local_verifypsa/dbpass', get_string('dbpass', 'local_verifypsa'), '', ''));
-    $settings->add(new admin_setting_configtext('local_verifypsa/dbtable', get_string('dbtable', 'local_verifypsa'), '', 'external_user_table'));
-    $settings->add(new admin_setting_configtext('local_verifypsa/colverified', get_string('colverified', 'local_verifypsa'), '', 'is_verified'));
-    $settings->add(new admin_setting_configtext('local_verifypsa/colemail', get_string('colemail', 'local_verifypsa'), '', 'email'));
+    // External DB host.
+    $settings->add(new admin_setting_configtext(
+        'local_verifypsa/dbhost',
+        get_string('dbhost', 'local_verifypsa'),
+        get_string('dbhost_desc', 'local_verifypsa'),
+        'localhost',
+        PARAM_RAW
+    ));
 
-    // Verification Portal
-    $settings->add(new admin_setting_configtext('local_verifypsa/verifyurl', get_string('verifyurl', 'local_verifypsa'), '', 'https://your-verify-portal.com'));
+    // External DB name.
+    $settings->add(new admin_setting_configtext(
+        'local_verifypsa/dbname',
+        get_string('dbname', 'local_verifypsa'),
+        get_string('dbname_desc', 'local_verifypsa'),
+        '',
+        PARAM_RAW
+    ));
 
-    // Custom Message
+    // External DB user.
+    $settings->add(new admin_setting_configtext(
+        'local_verifypsa/dbuser',
+        get_string('dbuser', 'local_verifypsa'),
+        get_string('dbuser_desc', 'local_verifypsa'),
+        '',
+        PARAM_RAW
+    ));
+
+    // External DB password.
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_verifypsa/dbpass',
+        get_string('dbpass', 'local_verifypsa'),
+        get_string('dbpass_desc', 'local_verifypsa'),
+        ''
+    ));
+
+    // External DB table.
+    $settings->add(new admin_setting_configtext(
+        'local_verifypsa/dbtable',
+        get_string('dbtable', 'local_verifypsa'),
+        get_string('dbtable_desc', 'local_verifypsa'),
+        '',
+        PARAM_RAW
+    ));
+
+    // Username column mapping.
+    $settings->add(new admin_setting_configtext(
+        'local_verifypsa/usercol',
+        get_string('usercol', 'local_verifypsa'),
+        get_string('usercol_desc', 'local_verifypsa'),
+        'username',
+        PARAM_RAW
+    ));
+
+    // Status column mapping.
+    $settings->add(new admin_setting_configtext(
+        'local_verifypsa/statuscol',
+        get_string('statuscol', 'local_verifypsa'),
+        get_string('statuscol_desc', 'local_verifypsa'),
+        'status',
+        PARAM_RAW
+    ));
+
+    // Verification URL.
+    $settings->add(new admin_setting_configtext(
+        'local_verifypsa/verifyurl',
+        get_string('verifyurl', 'local_verifypsa'),
+        get_string('verifyurl_desc', 'local_verifypsa'),
+        '',
+        PARAM_URL
+    ));
+
+    // Customizable popup message.
     $settings->add(new admin_setting_configtextarea(
-        'local_verifypsa/custommsg',
-        get_string('custommsg', 'local_verifypsa'),
-        get_string('custommsg_desc', 'local_verifypsa'),
-        'Please verify your account before proceeding.'
+        'local_verifypsa/message',
+        get_string('message', 'local_verifypsa'),
+        get_string('message_desc', 'local_verifypsa'),
+        'Please verify your info with PSA before continuing.',
+        PARAM_TEXT
     ));
 
+    // Add this settings page to the admin tree.
     $ADMIN->add('localplugins', $settings);
 }
+

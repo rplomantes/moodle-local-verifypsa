@@ -21,43 +21,67 @@
  * @copyright   2024 Roy Ploamntes <rplomantes@nephilaweb.com.ph>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 class local_verifypsa_observer {
-    public static function check_verification($event) {
-        global $USER, $SESSION;
+    /**
+     * Event handler: Check external database for user verification status.
+     */
+    public static function check_status(\core\event\user_loggedin $event) {
+        global $USER, $PAGE;
 
-        // Check plugin is enabled
-        if (!get_config('local_verifypsa', 'enable')) {
-            return;
+        // Load plugin config.
+        $config = get_config('local_verifypsa');
+
+        // Skip if not enabled.
+        if (empty($config->enabled)) {
+            return true;
         }
 
-        // Skip site admins
-        if (is_siteadmin($USER->id)) {
-            return;
+        // Skip for admins (optional).
+        if (is_siteadmin($USER)) {
+            return true;
         }
 
-        // Load DB settings
-        $dbhost     = get_config('local_verifypsa', 'dbhost');
-        $dbname     = get_config('local_verifypsa', 'dbname');
-        $dbuser     = get_config('local_verifypsa', 'dbuser');
-        $dbpass     = get_config('local_verifypsa', 'dbpass');
-        $dbtable    = get_config('local_verifypsa', 'dbtable');
-        $colverified= get_config('local_verifypsa', 'colverified');
-        $colemail   = get_config('local_verifypsa', 'colemail');
-
+        // External DB connection setup.
         try {
-            $extdb = moodle_database::get_driver_instance('mysqli', 'native', true);
-            $extdb->connect($dbhost, $dbuser, $dbpass, $dbname, 'utf8');
+            $external = moodle_database::get_driver_instance('mysqli', 'native', true);
+            $external->connect(
+                $config->dbhost,
+                $config->dbuser,
+                $config->dbpass,
+                $config->dbname,
+                ''
+            );
 
-            $sql = "SELECT {$colverified} FROM {$dbtable} WHERE {$colemail} = ?";
-            $record = $extdb->get_record_sql($sql, [$USER->email]);
+            // Build query to check status.
+            $sql = "SELECT {$config->statuscol}
+                      FROM {$config->dbtable}
+                     WHERE {$config->usercol} = ?";
+            $status = $external->get_field_sql($sql, [$USER->username]);
 
-            if ($record && $record->{$colverified} == 0) {
-                $SESSION->local_verifypsa_showpopup = true;
+            if ($status !== false && (string)$status === '0') {
+                // Use admin-configured message.
+                $message = !empty($config->message)
+                    ? $config->message
+                    : get_string('defaultmessage', 'local_verifypsa');
+
+                // Require popup JS.
+                $PAGE->requires->js_call_amd('local_verifypsa/popup', 'init', [
+                    $config->verifyurl,
+                    $message
+                ]);
             }
+
+            $external->dispose();
+
         } catch (Exception $e) {
-            debugging("VerifyPSA DB error: " . $e->getMessage(), DEBUG_DEVELOPER);
+            debugging('local_verifypsa: Failed to query external database. Error: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            return true;
         }
+
+        return true;
     }
 }
+

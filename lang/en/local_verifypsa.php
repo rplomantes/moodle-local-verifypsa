@@ -25,18 +25,33 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Verification PSA';
-$string['enable'] = 'Enable Verification Check';
-$string['enable_desc'] = 'If enabled, users with is_verified = 0 will see a verification popup after login.';
+$string['pluginname'] = 'Verify PSA';
+$string['enabled'] = 'Enable verification check';
+$string['enabled_desc'] = 'If enabled, the system will check an external database on login to verify user status.';
 
-$string['dbhost'] = 'External DB Host';
-$string['dbname'] = 'Database Name';
-$string['dbuser'] = 'Database User';
-$string['dbpass'] = 'Database Password';
-$string['dbtable'] = 'External Table';
-$string['colverified'] = 'Verified Column';
-$string['colemail'] = 'Email Column';
-$string['verifyurl'] = 'Verification Portal URL';
+$string['dbhost'] = 'Database host';
+$string['dbhost_desc'] = 'Hostname or IP address of the external database server.';
 
-$string['custommsg'] = 'Custom Verification Message';
-$string['custommsg_desc'] = 'This message will be displayed in the popup when a user is not verified.';
+$string['dbname'] = 'Database name';
+$string['dbname_desc'] = 'The name of the external database to connect to.';
+
+$string['dbuser'] = 'Database user';
+$string['dbuser_desc'] = 'Username for connecting to the external database.';
+
+$string['dbpass'] = 'Database password';
+$string['dbpass_desc'] = 'Password for the database user.';
+
+$string['dbtable'] = 'Table name';
+$string['dbtable_desc'] = 'Name of the table in the external database where user data is stored.';
+
+$string['usercol'] = 'Username column';
+$string['usercol_desc'] = 'Column name in the external table that corresponds to Moodle username.';
+
+$string['statuscol'] = 'Status column';
+$string['statuscol_desc'] = 'Column name in the external table that contains the verification status (0 = unverified).';
+
+$string['verifyurl'] = 'Verification URL';
+$string['verifyurl_desc'] = 'The URL where users will be redirected if they click "Verify Now".';
+
+$string['message'] = 'Popup message';
+$string['message_desc'] = 'This message will be displayed to users whose status = 0 in the external database. You can include custom instructions here.';
