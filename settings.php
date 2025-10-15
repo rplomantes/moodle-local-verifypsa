@@ -121,6 +121,15 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+     // Test connection link.
+    $testurl = new moodle_url('/local/verifypsa/testconnection.php');
+    $settings->add(new admin_setting_heading(
+        'local_verifypsa/testconnection',
+        get_string('testconnection', 'local_verifypsa'),
+        html_writer::link($testurl, get_string('testconnection_button', 'local_verifypsa'),
+            ['class' => 'btn btn-secondary', 'target' => '_blank'])
+    ));
+
     // Add this settings page to the admin tree.
     $ADMIN->add('localplugins', $settings);
 }
