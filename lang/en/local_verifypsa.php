@@ -19,7 +19,7 @@
  *
  * @package     local_verifypsa
  * @category    string
- * @copyright   2024 Roy Ploamntes <rplomantes@nephilaweb.com.ph>
+ * @copyright   2024 Roy Plomantes <rplomantes@nephilaweb.com.ph>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
